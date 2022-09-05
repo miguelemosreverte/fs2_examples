@@ -11,4 +11,12 @@ object Retry {
         retryUntilRight(io)
     }
   }
+
+  def restartWhenFailure[A](io: IO[A]): IO[A] = {
+    io.attempt.flatMap {
+      case Right(b) => IO.pure(b)
+      case Left(error) =>
+        restartWhenFailure(io)
+    }
+  }
 }

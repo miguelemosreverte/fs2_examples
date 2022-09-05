@@ -3,7 +3,7 @@ package examples._3
 import cats.effect.{ExitCode, IO, IOApp}
 import examples._2.VisitingTheZoo.App
 import examples._2.generator.nextVisit
-import infrastructure.utils.cats.Retry.retryUntilRight
+import infrastructure.utils.cats.Retry.{restartWhenFailure, retryUntilRight}
 import infrastructure.utils.http.ClientUtils.HTTPClient
 import infrastructure.utils.http.ServerUtils.serve
 import org.http4s.HttpRoutes
@@ -36,8 +36,10 @@ object ServerAndClient extends IOApp.Simple {
     )
 
     IO.race(
-      server,
-      retryUntilRight(streamProcessor)
+      restartWhenFailure(server),
+      restartWhenFailure(
+        retryUntilRight(streamProcessor)
+      )
     ).as(ExitCode.Success)
   }
 }
