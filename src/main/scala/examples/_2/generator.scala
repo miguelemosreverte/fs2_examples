@@ -28,5 +28,26 @@ object generator {
 
     def show: ZooVisit => String = newVisit =>
       s"${newVisit.persons.mkString(",")} visited on ${newVisit.date}"
+
+    def asJson: ZooVisit => String = newVisit =>
+      s"""{
+      |"date": "${newVisit.date}", 
+      |"persons": [${newVisit.persons
+        .map(a => s""" "$a" """)
+        .mkString(",")}]
+      |}""".stripMargin
+
+    def fromJson: String => Option[ZooVisit] = { str =>
+      str.replace("\n", "") match {
+        case s"""{"date": "${date}", "persons": [ ${persons} ]}""" =>
+          Some(
+            ZooVisit(
+              date,
+              persons.split(",").map(_.replace("\"", "")).toSet
+            )
+          )
+        case _ => None
+      }
+    }
   }
 }

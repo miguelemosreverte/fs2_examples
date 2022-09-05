@@ -1,4 +1,4 @@
-package infrastructure.fs2
+package infrastructure.utils.fs2
 
 import cats.effect.Async
 import fs2.Stream

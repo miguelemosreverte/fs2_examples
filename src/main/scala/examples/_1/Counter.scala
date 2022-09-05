@@ -1,7 +1,7 @@
 package examples._1
 
 import cats.effect.{IO, IOApp, Ref}
-import infrastructure.fs2.StreamUtils
+import infrastructure.utils.fs2.StreamUtils
 
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps

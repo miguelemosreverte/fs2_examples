@@ -1,7 +1,8 @@
 package examples._2
 
 import cats.effect._
-import infrastructure.fs2.StreamUtils
+import infrastructure.utils.fs2.StreamUtils
+
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
@@ -49,16 +50,23 @@ object VisitingTheZoo extends IOApp.Simple {
 
   }
 
-  def run: IO[Unit] =
-    StreamUtils
-      .executeIOEvery(
-        io = service.httpRequest,
-        every = 1 second
-      )
-      .evalTap(generator.nextVisit.show andThen IO.println)
-      .evalMap { service.aggregate }
-      .map(service.personsPerDate.calculate)
-      .evalTap(service.personsPerDate.show andThen IO.println)
-      .compile
-      .drain
+  object App {
+    def run(zooVisitHttpRequest: => IO[ZooVisit]): IO[Unit] =
+      StreamUtils
+        .executeIOEvery(
+          io = zooVisitHttpRequest,
+          every = 1 second
+        )
+        .evalTap(generator.nextVisit.show andThen IO.println)
+        .evalMap { service.aggregate }
+        .map(service.personsPerDate.calculate)
+        .evalTap(service.personsPerDate.show andThen IO.println)
+        .compile
+        .drain
+  }
+
+  override def run: IO[Unit] =
+    App.run(
+      zooVisitHttpRequest = service.httpRequest
+    )
 }
